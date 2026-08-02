@@ -1,0 +1,40 @@
+use esp_hal::ledc::{
+    channel::{self, Config as ChannelConfig, DriveMode, Number as ChannelNumber},
+    timer::{self, Config as TimerConfig, Duty as TimerDuty, LSClockSource, Number as TimerNumber},
+    Ledc, LSGlobalClkSource, LowSpeed, Rate,
+};
+
+fn main() {
+    let peripherals = esp_hal::init(esp_hal::Config::default());
+    let mut ledc = Ledc::new(peripherals.LEDC);
+    
+    // Set global slow clock source
+    ledc.set_global_slow_clock(LSGlobalClkSource::APBClk);
+    
+    // Configure Timer0 for Low Speed channel
+    let mut lstimer0 = ledc.timer::<LowSpeed>(TimerNumber::Timer0);
+    lstimer0.configure(TimerConfig {
+        duty: TimerDuty::Duty5Bit, // 5-bit resolution (0-31)
+        clock_source: LSClockSource::APBClk,
+        frequency: Rate::from_khz(24),
+    }).unwrap();
+    
+    // Assume 'led' is a configured GPIO pin
+    let led = peripherals.pins.gpio2.into_output().unwrap(); // Example GPIO
+    let mut channel0 = ledc.channel(ChannelNumber::Channel0, led);
+    channel0.configure(ChannelConfig {
+        timer: &lstimer0,
+        duty_pct: 10, // Initial 10% duty cycle
+        drive_mode: DriveMode::PushPull,
+    }).unwrap();
+    
+    loop {
+        // Fade IN: 0% to 100% over 1000ms (1 second)
+        channel0.start_duty_fade(0, 100, 1000).unwrap();
+        while channel0.is_duty_fade_running() {}
+        
+        // Fade OUT: 100% to 0% over 1000ms (1 second)
+        channel0.start_duty_fade(100, 0, 1000).unwrap();
+        while channel0.is_duty_fade_running() {}
+    }
+}   

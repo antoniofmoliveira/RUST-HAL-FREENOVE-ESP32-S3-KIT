@@ -1,0 +1,6 @@
+        To get started, you need to set up some environment variables by running: '
+. /home/oliveira/export-esp.sh
+'
+	This step must be done every time you open a new terminal.
+	    See other methods for setting the environment in https://github.com/esp-rs/espup/?tab=readme-ov-file#environment-variables-setup
+

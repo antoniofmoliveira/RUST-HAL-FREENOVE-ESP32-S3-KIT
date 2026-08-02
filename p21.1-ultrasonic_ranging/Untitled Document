@@ -1,0 +1,75 @@
+no driver
+
+Using the ESP32 HAL in Rust to interface with an HC-SR04 ultrasonic sensor involves configuring GPIO pins for trigger and echo signals, generating a 10-microsecond pulse on the trigger pin, and measuring the duration of the high signal on the echo pin to calculate distance. 
+
+Hardware Connections
+
+VCC: Connect to ESP32 Vin (5V) or 3.3V (if using HC-SR04+). 
+GND: Connect to ESP32 GND. 
+Trig: Connect to an ESP32 Output GPIO (e.g., GPIO5). 
+Echo: Connect to an ESP32 Input GPIO (e.g., GPIO18) through a voltage divider (1kΩ and 2kΩ resistors) to step down the 5V signal to a safe 3.3V level for the ESP32. 
+
+Implementation Logic
+The driver typically uses embedded-hal traits to manage GPIO states. The algorithm sets the Trig pin low, then high for 10µs, and low again.  It then polls the Echo pin until it goes high, starts a timer, waits for it to go low, and calculates the distance using the formula:
+d cm = Pecho / 29∗2
+​where Pecho is the pulse width in microseconds. 
+
+Voltage Divider Schematic
+The HC-SR04 outputs a 5V signal on the Echo pin, which exceeds the 3.3V tolerance of the ESP32.  The divider scales this down safely.
+
+HC-SR04 Echo (5V)
+      │
+      ├───[ R1: 1kΩ ]───┬─── To ESP32 GPIO 18
+                        │
+                        ├───[ R2: 2kΩ ]───┐
+                        │                 │
+                      (Input)           (GND)
+                                        │
+ESP32 GND ──────────────────────────────┘   
+
+Connections:
+
+R1 (1kΩ): Connects between the HC-SR04 Echo pin and the ESP32 GPIO 18. 
+R2 (2kΩ): Connects between the ESP32 GPIO 18 and ESP32 GND.
+Common Ground: Ensure the HC-SR04 GND is connected to the ESP32 GND. 
+
+===========================================================
+
+with crate hc-sr04
+
+
+Measure distance
+
+
+use hc_sr04::{HcSr04, Unit};
+
+// Initialize driver.
+let mut ultrasonic = HcSr04::new(
+    24,          // TRIGGER -> Gpio pin 24
+    23,          // ECHO -> Gpio pin 23
+    Some(23_f32) // Ambient temperature (if `None` defaults to 20.0C)
+).unwrap();
+
+// Perform distance measurement, specifying measuring unit of return value.
+match ultrasonic.measure_distance(Unit::Meters).unwrap() {
+    Some(dist) => println!("Distance: {.2}m", dist),
+    None => println!("Object out of range"),
+}
+
+
+Calibrate measurement
+Distance measurement can be calibrated at runtime using the HcSr04::calibrate method that this library exposes, passing the current ambient temperature as f32.
+
+use hc_sr04::{HcSr04, Unit};
+
+// Initialize driver.
+let mut ultrasonic = HcSr04::new(24, 23, None).unwrap();
+
+// Calibrate measurement with ambient temperature.
+ultrasonic.calibrate(23_f32);
+
+// Perform distance measurement.
+match ultrasonic.measure_distance(Unit::Centimeters).unwrap() {
+    Some(dist) => println!("Distance: {.1}cm", dist),
+    None => println!("Object out of range"),
+}
