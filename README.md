@@ -6,7 +6,7 @@ I use the Esp32 WROVER-E board with the GPIO expansion board.
 
 I use esp-hal 1.1.0.
 
-Some cannot be done in rust because I dont have the hardware to test them.
+Some cannot be done because I dont have the hardware to test them.
 
 ## Observations
 
