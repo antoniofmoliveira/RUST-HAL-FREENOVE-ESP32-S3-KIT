@@ -25,4 +25,5 @@ Some cannot be done because I dont have the hardware to test them.
     cd project
     ~/export-esp.sh
     code . # or zed .
+    cargo run # it will compile and flash the esp32
     ```
