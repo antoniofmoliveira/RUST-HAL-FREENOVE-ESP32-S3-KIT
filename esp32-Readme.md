@@ -1,13 +1,13 @@
 # Rust ESP32 Example
 
     // generator version: 1.3.0
-    // generator parameters: --chip esp32 -o esp32-wrover-e -o vscode -o unstable-hal -o esp-backtrace
+    // generator parameters: --chip esp32 -o esp32-wrover-e -o vscode -ozed -o unstable-hal -o esp-backtrace
 ```bash
 
 esp-generate --chip esp32 project
-/home/oliveira/export-esp.sh
+~/export-esp.sh
 cd project
-code .
+code . OR ZED .
 ```
 
 ## settings.json
