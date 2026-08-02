@@ -1,4 +1,4 @@
-# Using Rust hal for ESP32 with VSCode and Zed to translate the code from Freenove Esp32-S3-Kit
+# Using Rust ESP32 hal with VSCode and Zed to translate the code from Freenove Esp32-S3-Kit
 
 Work in progress.
 
