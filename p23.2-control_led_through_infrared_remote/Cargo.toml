@@ -1,11 +1,11 @@
 [package]
 edition      = "2024"
-name         = "infrared_remote_control"
+name         = "control_led_through_infrared_remote"
 rust-version = "1.88"
 version      = "0.1.0"
 
 [[bin]]
-name = "infrared_remote_control"
+name = "control_led_through_infrared_remote"
 path = "./src/bin/main.rs"
 
 [dependencies]

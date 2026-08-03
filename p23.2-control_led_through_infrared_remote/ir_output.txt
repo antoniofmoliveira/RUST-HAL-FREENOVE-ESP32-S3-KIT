@@ -1,0 +1,103 @@
+1
+Received 36 symbols
+Full Code: 0x00FFA25D
+Addr: 0x00, Cmd: 0xA2
+✓ Valid NEC Command!
+
+2
+Received 36 symbols
+Full Code: 0x00FF629D
+Addr: 0x00, Cmd: 0x62
+✓ Valid NEC Command!
+
+3
+Received 36 symbols
+Full Code: 0x00FFE21D
+Addr: 0x00, Cmd: 0xE2
+✓ Valid NEC Command!
+
+4
+Received 36 symbols
+Full Code: 0x00FF22DD
+Addr: 0x00, Cmd: 0x22
+✓ Valid NEC Command!
+
+5
+Received 2 symbols
+Repeat signal detected (Button held)
+Received 36 symbols
+Full Code: 0x00FF02FD
+Addr: 0x00, Cmd: 0x02
+✓ Valid NEC Command!
+
+6
+Received 36 symbols
+Full Code: 0x00FFC23D
+Addr: 0x00, Cmd: 0xC2
+✓ Valid NEC Command!
+
+7
+Received 36 symbols
+Full Code: 0x00FFE01F
+Addr: 0x00, Cmd: 0xE0
+✓ Valid NEC Command!
+
+8
+Received 36 symbols
+Full Code: 0x00FFA857
+Addr: 0x00, Cmd: 0xA8
+✓ Valid NEC Command!
+
+9
+Received 36 symbols
+Full Code: 0x00FF906F
+Addr: 0x00, Cmd: 0x90
+✓ Valid NEC Command!
+
+*
+Received 36 symbols
+Full Code: 0x00FF6897
+Addr: 0x00, Cmd: 0x68
+✓ Valid NEC Command!
+
+0
+Received 36 symbols
+Full Code: 0x00FF9867
+Addr: 0x00, Cmd: 0x98
+✓ Valid NEC Command!
+
+#
+Received 36 symbols
+Full Code: 0x00FFB04F
+Addr: 0x00, Cmd: 0xB0
+✓ Valid NEC Command!
+
+up
+Received 36 symbols
+Full Code: 0x00FF18E7
+Addr: 0x00, Cmd: 0x18
+✓ Valid NEC Command!
+
+left
+Received 36 symbols
+Full Code: 0x00FF10EF
+Addr: 0x00, Cmd: 0x10
+✓ Valid NEC Command!
+
+ok
+Received 36 symbols
+Full Code: 0x00FF38C7
+Addr: 0x00, Cmd: 0x38
+✓ Valid NEC Command!
+
+right
+Received 36 symbols
+Full Code: 0x00FF5AA5
+Addr: 0x00, Cmd: 0x5A
+✓ Valid NEC Command!
+
+down
+Received 36 symbols
+Full Code: 0x00FF4AB5
+Addr: 0x00, Cmd: 0x4A
+✓ Valid NEC Command!
