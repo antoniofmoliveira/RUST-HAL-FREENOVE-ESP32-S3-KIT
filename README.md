@@ -1,4 +1,4 @@
-# Using Rust ESP32 hal to translate the code from Freenove Esp32-S3-Kit
+# Coding in Rust and Esp32 hal the Freenove Esp32-S3 Kit projects
 
 Work in progress.
 
