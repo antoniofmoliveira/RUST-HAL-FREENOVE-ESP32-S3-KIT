@@ -7,11 +7,20 @@
 )]
 #![deny(clippy::large_stack_frames)]
 
-use ag_lcd::{Cursor, LcdDisplay};
+use ag_lcd::{Cursor, LcdDisplay, Lines};
 use esp_backtrace as _;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_hal::time::Rate;
-use esp_hal::{clock::CpuClock, main, time::Instant};
+use esp_hal::{
+    clock::CpuClock,
+    gpio::{
+        DriveMode::{self},
+        InputConfig, Level, Output, OutputConfig, Pull,
+    },
+    main,
+};
+use hygrothermograph::Dht11;
+use log::info;
 use numtoa::NumToA;
 use port_expander::dev::pcf8574::Pcf8574;
 
@@ -51,31 +60,70 @@ fn main() -> ! {
     let _ = peripherals.GPIO17;
     let _ = peripherals.GPIO20;
 
-    let boot_instant = Instant::now();
-
+    let delay = esp_hal::delay::Delay::new();
     let config = Config::default().with_frequency(Rate::from_khz(100));
     let i2c_bus = I2c::new(peripherals.I2C0, config)
         .unwrap()
-        .with_sda(peripherals.GPIO14)
+        .with_sda(peripherals.GPIO33)
         .with_scl(peripherals.GPIO13);
     let mut i2c_expander = Pcf8574::new(i2c_bus, true, true, true);
-    let delay = esp_hal::delay::Delay::new();
-
     let mut lcd: LcdDisplay<_, _> = LcdDisplay::new_pcf8574(&mut i2c_expander, delay)
+        .with_lines(Lines::TwoLines)
         .with_cursor(Cursor::Off)
         .build();
-    lcd.print("hello world!");
-    delay.delay_millis(1000);
+    lcd.set_character( // degree symbol in location 0
+        0u8,
+        [
+            0x0E, // Top arc
+            0x11, // Left side
+            0x11, // Right side
+            0x0E, // Bottom arc
+            0x00, 0x00, 0x00, 0x00,
+        ],
+    );
+
+    let pin21 = Output::new(
+        peripherals.GPIO14,
+        Level::Low,
+        OutputConfig::default()
+            .with_drive_mode(DriveMode::OpenDrain)
+            .with_pull(Pull::None),
+    );
+    let mut pin21_flex: esp_hal::gpio::Flex<'_> = pin21.into_flex();
+    pin21_flex.apply_input_config(&InputConfig::default());
+    pin21_flex.set_input_enable(true);
+    pin21_flex.set_output_enable(true);
+
+    let delay = esp_hal::delay::Delay::new();
+
+    let mut dht11 = Dht11::new(pin21_flex, delay);
 
     let mut buf = [0u8; 20];
 
     loop {
+        let reading = dht11.read().unwrap();
         lcd.clear();
-        lcd.set_position(0, 1); // column, row - 0 based
-        lcd.print("Counter: ");
-        let secs_from_boot = boot_instant.elapsed().as_secs();
-        let secs_as_str = secs_from_boot.numtoa_str(10, &mut buf);
-        lcd.print(secs_as_str);
-        delay.delay_millis(1000);
+        lcd.set_position(0, 0); // column, row    
+        lcd.print("Humidity: ");
+        lcd.print(reading.humidity.numtoa_str(10, &mut buf));
+        lcd.print(".");
+        lcd.print(reading.humidity_decimal.numtoa_str(10, &mut buf));
+        lcd.print("%");
+        lcd.set_position(0, 1); // column, row
+        lcd.print("Temp: ");
+        lcd.print(reading.temperature.numtoa_str(10, &mut buf));
+        lcd.print(".");
+        lcd.print(reading.temperature_decimal.numtoa_str(10, &mut buf));
+        lcd.write(0u8); // degree symbol
+        lcd.print("C");
+        info!(
+            "Humidity: {}.{}%, Temperature: {}.{}°C",
+            reading.humidity,
+            reading.humidity_decimal,
+            reading.temperature,
+            reading.temperature_decimal
+        );
+
+        delay.delay_millis(2000);
     }
 }
