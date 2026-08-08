@@ -10,13 +10,12 @@
 use esp_hal::{
     clock::CpuClock,
     delay::Delay,
-    gpio::{Level, Output, OutputConfig},
     main,
     rmt::{PulseCode, Rmt, RxChannelConfig, RxChannelCreator},
     time::Rate,
 };
 
-use esp_println::{print, println};
+use esp_println::println;
 
 use esp_backtrace as _;
 
@@ -56,15 +55,13 @@ fn main() -> ! {
     let _ = peripherals.GPIO17;
     let _ = peripherals.GPIO20;
 
-    const WIDTH: usize = 80;
-
-    // let mut out = Output::new(peripherals.GPIO14, Level::Low, OutputConfig::default());
+    const WIDTH: u8 = 80;
 
     // Configure frequency based on chip type
     let rmt = Rmt::new(peripherals.RMT, Rate::from_mhz(80)).unwrap();
 
     let rx_config = RxChannelConfig::default()
-        .with_clk_divider(80)
+        .with_clk_divider(WIDTH)
         .with_idle_threshold(50000)
         .with_filter_threshold(10);
     let mut channel = rmt
