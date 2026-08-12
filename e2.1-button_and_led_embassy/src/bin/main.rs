@@ -7,12 +7,12 @@
 )]
 #![deny(clippy::large_stack_frames)]
 
-use blinky_embassy::BlinkLed;
+use button_and_led_embassy::BlinkLed;
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
 use esp_hal::clock::CpuClock;
-use esp_hal::gpio::{Level, Output, OutputConfig};
+use esp_hal::gpio::{Input, InputConfig, Level, Output, OutputConfig, Pull};
 use esp_hal::timer::timg::TimerGroup;
 use log::info;
 
@@ -58,11 +58,13 @@ async fn main(spawner: Spawner) -> ! {
 
     info!("Embassy initialized!");
 
-    let led = BlinkLed::new(Output::new(
-        peripherals.GPIO2,
-        Level::High,
-        OutputConfig::default(),
-    ));
+    let led = BlinkLed::new(
+        Output::new(peripherals.GPIO2, Level::High, OutputConfig::default()),
+        Input::new(
+            peripherals.GPIO0,
+            InputConfig::default().with_pull(Pull::Up),
+        ),
+    );
 
     spawner.spawn(run(led).unwrap());
 
@@ -75,6 +77,6 @@ async fn main(spawner: Spawner) -> ! {
 #[embassy_executor::task]
 async fn run(mut led: BlinkLed<'static>) {
     loop {
-        led.toggle().await;
+        led.handle_button_press().await;
     }
 }
