@@ -15,13 +15,15 @@ use embedded_graphics::{
     text::{Baseline, Text},
 };
 use esp_backtrace as _;
-use esp_hal::clock::CpuClock;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_hal::main;
+use esp_hal::time::Instant;
 use esp_hal::time::Rate;
-use esp_hal::time::{Duration, Instant};
-use log::info;
+use esp_hal::{clock::CpuClock, time::Duration};
+// use log::info;
+use numtoa::NumToA;
 use ssd1306::{I2CDisplayInterface, Ssd1306, prelude::*, size::DisplaySize128x64};
+
 // This creates a default app-descriptor required by the esp-idf bootloader.
 // For more information see: <https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/app_image_format.html#application-description>
 esp_bootloader_esp_idf::esp_app_desc!();
@@ -58,6 +60,8 @@ fn main() -> ! {
     let _ = peripherals.GPIO17;
     let _ = peripherals.GPIO20;
 
+    let boot_instant = Instant::now();
+
     // let delay = esp_hal::delay::Delay::new();
     let config = Config::default().with_frequency(Rate::from_khz(100));
     let i2c_bus = I2c::new(peripherals.I2C0, config)
@@ -75,14 +79,25 @@ fn main() -> ! {
         .text_color(BinaryColor::On)
         .build();
 
-    Text::with_baseline("Hello Rust!", Point::zero(), text_style, Baseline::Top)
-        .draw(&mut display)
-        .unwrap();
+    let mut buf = [0u8; 20];
 
-    display.flush().unwrap();
     loop {
-        info!("Hello world!");
+        let secs_from_boot = boot_instant.elapsed().as_secs();
+        let secs_as_str = secs_from_boot.numtoa_str(10, &mut buf);
         let delay_start = Instant::now();
+        display.clear(BinaryColor::Off).unwrap();
+        Text::with_baseline("Hello Rust!", Point::zero(), text_style, Baseline::Top)
+            .draw(&mut display)
+            .unwrap();
+
+        Text::with_baseline("Counter: ", Point::new(0, 20), text_style, Baseline::Top)
+            .draw(&mut display)
+            .unwrap();
+
+        Text::with_baseline(secs_as_str, Point::new(50, 20), text_style, Baseline::Top)
+            .draw(&mut display)
+            .unwrap();
+        display.flush().unwrap();
         while delay_start.elapsed() < Duration::from_millis(500) {}
     }
 }
